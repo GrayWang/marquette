@@ -5,15 +5,15 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MosquittoMessage.h"
 
-@protocol MosquittoClientDeligate
+@protocol MosquittoClientDelegate
 
 - (void) didConnect: (NSUInteger)code;
 - (void) didDisconnect;
 - (void) didPublish: (NSUInteger)messageId;
 
-// FIXME: create MosquittoMessage class
-- (void) didReceiveMessage: (NSString*)message topic:(NSString*)topic;
+- (void) didReceiveMessage: (MosquittoMessage*)mosq_msg;
 - (void) didSubscribe: (NSUInteger)messageId grantedQos:(NSArray*)qos;
 - (void) didUnsubscribe: (NSUInteger)messageId;
 
@@ -28,8 +28,8 @@
     NSString *password;
     unsigned short keepAlive;
     BOOL cleanSession;
-
-    id<MosquittoClientDeligate> delegate;
+    
+    id<MosquittoClientDelegate> delegate;
     NSTimer *timer;
 }
 
@@ -39,22 +39,23 @@
 @property (readwrite,retain) NSString *password;
 @property (readwrite,assign) unsigned short keepAlive;
 @property (readwrite,assign) BOOL cleanSession;
-@property (readwrite,assign) id<MosquittoClientDeligate> delegate;
+@property (readwrite,assign) id<MosquittoClientDelegate> delegate;
 
 + (void) initialize;
 + (NSString*) version;
 
 
 - (MosquittoClient*) initWithClientId: (NSString *)clientId;
-- (void) setLogPriorities: (int)priorities destinations:(int)destinations;
 - (void) setMessageRetry: (NSUInteger)seconds;
 - (void) connect;
 - (void) connectToHost: (NSString*)host;
 - (void) reconnect;
 - (void) disconnect;
 
-- (void)publishString: (NSString *)payload toTopic:(NSString *)topic retain:(BOOL)retain;
-//- (void)publishMessage
+- (void)setWill: (NSString *)payload toTopic:(NSString *)willTopic withQos:(NSUInteger)willQos retain:(BOOL)retain;
+- (void)clearWill;
+
+- (void)publishString: (NSString *)payload toTopic:(NSString *)topic withQos:(NSUInteger)qos retain:(BOOL)retain;
 
 - (void)subscribe: (NSString *)topic;
 - (void)subscribe: (NSString *)topic withQos:(NSUInteger)qos;
